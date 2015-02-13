@@ -1,0 +1,6 @@
+[_[:alnum:]]*tercom[_[:alnum:]]*
+[_[:alnum:]]*TERCOM[_[:alnum:]]*
+[_[:alnum:]]*tepkom[_[:alnum:]]*
+[_[:alnum:]]*TEPKOM[_[:alnum:]]*
+[_[:alnum:]]*ovk[_[:alnum:]]*
+[_[:alnum:]]*OVK[_[:alnum:]]*
