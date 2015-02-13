@@ -176,11 +176,13 @@ function indent_i4t4() { sed -re $'s/^ {1,3}(\t+)/\\1/g; :a;s/^(\t*) {4}/\\1\t/;
 function indent_i4t8() { sed -re $'s/^ {1,7}(\t+)/\\1/g; :a;s/^(\t*) {8}/\\1\t/;ta; s/^(\t+)/\\1\\1/; s/^(\t*) {4}/\\1\t/'; }
 function indent_i8t8() { sed -re $'s/^ {1,7}(\t+)/\\1/g; :a;s/^(\t*) {8}/\\1\t/;ta; s/^(\t*) {4}/\\1\t/'; }
 
+indent_kinds=(i4t4 i8t8 i4t8 i2t2 i3t3)
 declare -A indent_log
 
 function indent_expand() {
 	local cost_i2t2 cost_i3t3 cost_i4t4 cost_i4t8 cost_i8t8
-	local costs scosts cost_min
+	declare -A costs
+	local cost_min
 	local filename result
 
 	filename=$(dirname ${f#./})
@@ -190,42 +192,30 @@ function indent_expand() {
 	< $TMP_FILE-orig  perl_sed 's/(\/\*.*?\*\/[^\S\n]*|\/\/\N*)//smg' | strip_trailing_whitespaces > $TMP_FILE-nocomm
 
 	function strip_inner_ws() { sed -re ':a;s/^(\s*\S+)\s+/\1/g;ta'; }
-	< $TMP_FILE-nocomm  indent_astyle | strip_inner_ws > $TMP_FILE-astyle
-	< $TMP_FILE-nocomm  indent_i2t2 | strip_inner_ws > $TMP_FILE-i2t2
-	< $TMP_FILE-nocomm  indent_i3t3 | strip_inner_ws > $TMP_FILE-i3t3
-	< $TMP_FILE-nocomm  indent_i4t4 | strip_inner_ws > $TMP_FILE-i4t4
-	< $TMP_FILE-nocomm  indent_i4t8 | strip_inner_ws > $TMP_FILE-i4t8
-	< $TMP_FILE-nocomm  indent_i8t8 | strip_inner_ws > $TMP_FILE-i8t8
-
 	function diff_stat() { diff -u0 $@ | pcregrep '^-\t+(?!#|\s)' | wc -l; }
-	cost_i2t2=$(diff_stat $TMP_FILE-astyle $TMP_FILE-i2t2)
-	cost_i3t3=$(diff_stat $TMP_FILE-astyle $TMP_FILE-i3t3)
-	cost_i4t4=$(diff_stat $TMP_FILE-astyle $TMP_FILE-i4t4)
-	cost_i4t8=$(diff_stat $TMP_FILE-astyle $TMP_FILE-i4t8)
-	cost_i8t8=$(diff_stat $TMP_FILE-astyle $TMP_FILE-i8t8)
 
-	costs=( \
-		$cost_i2t2 \
-		$cost_i3t3 \
-		$cost_i4t4 \
-		$cost_i4t8 \
-		$cost_i8t8 )
+	< $TMP_FILE-nocomm  indent_astyle | strip_inner_ws > $TMP_FILE-astyle
+	for ik in "${indent_kinds[@]}"; do
+		< $TMP_FILE-nocomm  indent_$ik | strip_inner_ws > $TMP_FILE-$ik
+		costs[$ik]=$(diff_stat $TMP_FILE-astyle $TMP_FILE-$ik)
+	done
 
-	readarray -t scosts < <(IFS=$'\n'; sort -n  <<< "${costs[*]}")
-	cost_min=${scosts[0]}
+	cost_min=$(IFS=$'\n'; sort -n  <<< "${costs[*]}" | head -n1)
 
-	  if (( cost_min == cost_i4t4 )); then  < $TMP_FILE-orig  indent_i4t4; result="i4t4"; fi
-	elif (( cost_min == cost_i8t8 )); then  < $TMP_FILE-orig  indent_i8t8; result="i8t8"; fi
-	elif (( cost_min == cost_i4t8 )); then  < $TMP_FILE-orig  indent_i4t8; result="i4t8"; fi
-	elif (( cost_min == cost_i2t2 )); then  < $TMP_FILE-orig  indent_i2t2; result="i2t2"; fi
-	elif (( cost_min == cost_i3t3 )); then  < $TMP_FILE-orig  indent_i3t3; result="i3t3"; fi
-
-	indent_log[$filename]="${indent_log[$filename]} $result"
+	for ik in "${indent_kinds[@]}"; do
+		if (( costs[$ik] == cost_min )); then
+			< $TMP_FILE-orig  indent_$ik
+			indent_log[$filename]="${indent_log[$filename]} $ik"
+			>&2 echo "$f 	${indent_log[$filename]}"
+			break
+		fi
+	done
 }
 fix indent_expand \
 	-- $(find . -type f -path '*.[ch]/*-????????????????????????????????????????' \
 			| grep -vf $BAD_SOURCES | grep -v lwip)
 
+declare -A indent_show_once
 function indent_check_log() {
 	local costs scosts ucosts
 	local filename log ulog
@@ -233,9 +223,13 @@ function indent_check_log() {
 	filename=$(dirname ${f#./})
 	log=(${indent_log[$filename]})
 
-	readarray -t ulog < <(IFS=$'\n'; sort -u  <<< "${log[*]}")
+	readarray -t ulog < <(IFS=$'\n'; uniq <<< "${log[*]}")
+
 	if [[ ${#ulog[@]} != 1 ]]; then
-		(IFS=$'\t'; >&2 echo "$f 	${log[*]}")
+		if [[ -z ${indent_show_once[$filename]} ]]; then
+			indent_show_once[$filename]=1
+			(IFS=$'\t'; >&2 echo "$f 	${#log[@]}	${ulog[*]}")
+		fi
 	fi
 
 	cat
