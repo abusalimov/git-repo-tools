@@ -12,17 +12,19 @@ set -e
 
 OUT_DIR="$1"
 
-if [[ -z $OUT_DIR ]] || [[ ! -d $OUT_DIR ]]; then
-    >&2 echo "OUT_DIR: $OUT_DIR: no such directory"
+if [[ -z $OUT_DIR ]]; then
+    >&2 echo "Usage: $0 out_dir"
     exit 1
 fi
+mkdir -p "$OUT_DIR"
 
 for file in $(find . -type f); do
 	dest_dir="$OUT_DIR/$file"
-	dest_file="$dest_dir/$(set -- $(sha1sum "$file"); echo $1)"
+	commit_timestamp=$(echo ${GIT_AUTHOR_DATE#@} | cut -d' ' -f1)
+	file_hash=$(sha1sum "$file" | cut -d' ' -f1)
 
-	if [[ ! -f $dest_file ]]; then
+	if [ ! -f "$dest_dir"/*-$file_hash ]; then
 		mkdir -p "$dest_dir"
-		cp "$file" "$dest_file"
+		cp "$file" $dest_dir/$commit_timestamp-$file_hash
 	fi
 done
