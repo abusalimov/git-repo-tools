@@ -18,13 +18,13 @@ if [[ -z $OUT_DIR ]]; then
 fi
 mkdir -p "$OUT_DIR"
 
-for file in $(find . -type f); do
+find . -type f -print0 | while read -d $'\0' file; do
 	dest_dir="$OUT_DIR/$file"
 	commit_timestamp=$(echo ${GIT_AUTHOR_DATE#@} | cut -d' ' -f1)
 	file_hash=$(sha1sum "$file" | cut -d' ' -f1)
 
 	if [ ! -f "$dest_dir"/*-$file_hash ]; then
 		mkdir -p "$dest_dir"
-		cp "$file" $dest_dir/$commit_timestamp-$file_hash
+		cp -T "$file" "$dest_dir"/$commit_timestamp-$file_hash
 	fi
 done
