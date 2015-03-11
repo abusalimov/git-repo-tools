@@ -14,7 +14,7 @@ if [[ -z $DUMP_DIR ]]; then
 	exit 1
 fi
 
-find . \( -type f -o -type l \) -print0 | while read -d $'\0' file; do
+find . \( -type f -o -type l \) -print0 | while read -r -d $'\0' file; do
 	file_dir="$DUMP_DIR/${file// /-}"
 	sha1=$(git hash-object --no-filters -- "$file")
 

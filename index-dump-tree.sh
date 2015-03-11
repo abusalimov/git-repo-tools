@@ -18,13 +18,13 @@ if [[ -z $DUMP_DIR ]]; then
 fi
 mkdir -p "$DUMP_DIR"
 
-read timestamp _ <<< "${GIT_AUTHOR_DATE#@}"
+read -r timestamp _ <<< "${GIT_AUTHOR_DATE#@}"
 
 git diff-tree --no-commit-id --no-renames --diff-filter=AM -c -r -z $GIT_COMMIT | \
-while read -d $'\0' -a metadata; do
+while read -r -d $'\0' -a metadata; do
 	sha1=${metadata[-2]}
 
-	read -d $'\0' file
+	read -r -d $'\0' file
 	file_dir="$DUMP_DIR/${file// /-}"
 
 	if [ ! -f "$file_dir"/*-$sha1 ]; then
