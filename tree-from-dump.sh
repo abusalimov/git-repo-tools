@@ -19,7 +19,10 @@ find . \( -type f -o -type l \) -print0 | while read -r -d $'\0' file; do
 	sha1=$(git hash-object --no-filters -- "$file")
 
 	if [ -f "$file_dir"/*-$sha1 ]; then
-		cp -T $(set -- "$file_dir"/*-$sha1; echo $1) > "$file"
+		cp -d --preserve=all -T $(set -- "$file_dir"/*-$sha1; echo $1) "$file"
+		if [ "$file" != "${file// /-}" ]; then
+			mv -T "$file" "${file// /-}"
+		fi
 	else
 		rm "$file"
 	fi
