@@ -20,7 +20,8 @@ mkdir -p "$DUMP_DIR"
 
 read -r timestamp _ <<< "${GIT_AUTHOR_DATE#@}"
 
-git diff-tree --no-commit-id --no-renames --diff-filter=AM -c -r -z $GIT_COMMIT | \
+git diff-tree --root --no-commit-id --no-renames --diff-filter=AM -c -r -z \
+	$GIT_COMMIT | \
 while read -r -d $'\0' -a metadata; do
 	sha1=${metadata[-2]}
 
