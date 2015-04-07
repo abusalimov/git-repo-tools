@@ -1,0 +1,11 @@
+(?x) (((?<= ========)|(?<= \n))\n ^ (\S+?:\ )* | ^\ *(-|\d+[:.)])\ + | [.] )\ * (?= \b
+( (an?|the)\s+)? ((bit|great|little|extra|extrem|few|major|minor|some|small|(in)?significant|various)(e?ly)?\s+)?
+( (bug|stub|old|new|now)s?\b
+| (no) (?=\s+(more)\b(?!:))
+| (nothing) (?=\s+(significant|special|important|meaningful)\b(?!:))
+| (fix) (?=(ed|ing)?\b(?!:))
+| (work) (?=(ing)?\b(?!:) (?=\s+(on)\b(?!:)))
+| (g[eo]t) (?=(t?ing)?\b(?!:) (?=\s+(rid)\b(?!:)))
+| (throw) (?=(n|ing)?\b(?!:) (?=\s+(out|away)\b(?!:)))
+| (add|check|clea[nr](up)?|committ?|comment|extract|implement|optimization|refactor|return|revert|rework|tr[iy](?=\w*\s+(to)\b)|simplif[yi](cation)?|split|workaround) (?=(s|ed|ings?)?\b(?!:))
+| (chang|clos|creat|cod|delet|disabl|enabl|improv|initializ|issu|merg|optimiz|prepar|(re)?mov|renam|rewr[io]t|updat|us) (?=(e|es|ed|ings?)\b(?!:)) )  )(?!:)
