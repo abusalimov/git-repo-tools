@@ -1,0 +1,9 @@
+platform/zrv/templates/zrv-qemu-arm/rootfs/
+platform/zrv/templates/zrv-qemu-mips/rootfs/
+platform/zrv/templates/zrv-qemu-ppc/rootfs/
+platform/zrv/templates/zrv-qemu-x86/rootfs/fonts/
+platform/zrv/templates/zrv-qt/rootfs/fonts/
+platform/zrv/templates/zrv-smp-security/rootfs/mnt/
+platform/zrv/templates/zrv-ti816x/rootfs/
+templates/x86/zrv-qt/rootfs/fonts/
+templates/x86/zrv-smp-security/rootfs/mnt/
