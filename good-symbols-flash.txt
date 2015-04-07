@@ -1,0 +1,10 @@
+flash
+device
+device.h
+store
+flash_erase_block
+flash_query
+partition
+makefile
+Makefile
+find_free_desc

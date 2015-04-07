@@ -1,14 +1,2 @@
-.gitattributes
-.gitignore
-.config2/
-.config2.in/
-scripts/.config2.in/
-lwip
-icebrick
--ovk
-/ovk/
-/ovk_
-/tercom
-src/drivers/align
 COPYRIGHT
 src/drivers/net/xilinx_emaclite.c
